@@ -1,22 +1,16 @@
 import sys
 import pickle
+import base64
+import zlib
+import itertools
 import utilities as utils
 
 
-def recurse(data, rounds=1, total_rounds=5):
-    if rounds > total_rounds:
-        return data
-
-    new_data = []
+def infinity_check(data):
     for elem in data:
-        if len(elem) < 2:
-            new_data.append(elem[0])
-        else:
-            new_data.append(utils.cantor_pair(*elem))
-
-    rounds += 1
-    new_data = list(utils.splice_list(new_data, 2))
-    return recurse(new_data, rounds=rounds)
+        if elem == float("Inf"):
+            return True
+    return False
 
 
 if __name__ == "__main__":
@@ -27,7 +21,13 @@ if __name__ == "__main__":
     out = []
     for elem in f_in:
         split = list(utils.splice_list(elem, 2))
-        out.append(recurse(split))
+        out.append(utils.recurse_pair(split, total_rounds=7))
     
-    print(len(out[0]))
-    print(256 * 292)
+
+    x = [elem for elem in itertools.chain(*out)]
+    y = [elem for elem in itertools.chain(*x)]
+    if infinity_check(y):
+        print("Impossible number: Infinity")
+        sys.exit(-1)
+
+    # Try Huffman again with pairing

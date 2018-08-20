@@ -56,6 +56,22 @@ def cantor_unpair(num):
 
     return x, y
 
+
+def recurse_pair(data, rounds=1, total_rounds=5):
+    if rounds > total_rounds:
+        return data
+
+    new_data = []
+    for elem in data:
+        if len(elem) < 2:
+            new_data.append(elem[0])
+        else:
+            new_data.append(cantor_pair(*elem))
+
+    rounds += 1
+    new_data = list(splice_list(new_data, 2))
+    return recurse_pair(new_data, rounds=rounds, total_rounds=total_rounds)
+
 def huffman_encode(data):
     print(f"Building Huffman Codec...")
     codec = HuffmanCodec.from_data(data)
@@ -67,3 +83,4 @@ def huffman_encode(data):
 
 def huffman_decode(data, codec):
     return codec.decode(data)
+
