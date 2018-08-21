@@ -1,6 +1,7 @@
 import json
 import math
 from dahuffman import HuffmanCodec
+from collections import Counter
 
 def read_file(filename, flag="rb"):
     with open(filename, flag) as f:
@@ -56,7 +57,6 @@ def cantor_unpair(num):
 
     return x, y
 
-
 def recurse_pair(data, rounds=1, total_rounds=5):
     if rounds > total_rounds:
         return data
@@ -72,9 +72,20 @@ def recurse_pair(data, rounds=1, total_rounds=5):
     new_data = list(splice_list(new_data, 2))
     return recurse_pair(new_data, rounds=rounds, total_rounds=total_rounds)
 
-def huffman_encode(data):
+def infinity_check(data):
+    for elem in data:
+        if elem == float("Inf"):
+            return True
+    return False
+
+def huffman_codec(input_data, freqs=False):
+    if freqs:
+        return HuffmanCodec.from_frequencies(Counter(input_data))
+    return HuffmanCodec.from_data(input_data)
+
+def huffman_encode(data, freqs=False):
     print(f"Building Huffman Codec...")
-    codec = HuffmanCodec.from_data(data)
+    codec = huffman_codec(data, freqs=freqs)
     print(f"Codec built!")
     print("Encoding data...")
     out = codec.encode(data)
