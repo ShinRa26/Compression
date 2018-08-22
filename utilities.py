@@ -94,4 +94,3 @@ def huffman_encode(data, freqs=False):
 
 def huffman_decode(data, codec):
     return codec.decode(data)
-
