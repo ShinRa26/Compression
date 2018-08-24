@@ -1,7 +1,10 @@
 import json
 import math
-from dahuffman import HuffmanCodec
+import zlib
+import pickle
+import base64
 from collections import Counter
+from dahuffman import HuffmanCodec
 
 def read_file(filename, flag="rb"):
     with open(filename, flag) as f:
@@ -90,7 +93,14 @@ def huffman_encode(data, freqs=False):
     print("Encoding data...")
     out = codec.encode(data)
 
-    return out, codec
+    print("Compressing output and codec with zlib...")
+    compressed_output = zlib.compress(out, 9)
+    compressed_codec = zlib.compress(pickle.dumps(codec), 9)
+
+    encoded_output = base64.a85encode(compressed_output)
+    encoded_codec = base64.a85encode(compressed_codec) 
+
+    return encoded_output, encoded_codec
 
 def huffman_decode(data, codec):
     return codec.decode(data)
