@@ -25,11 +25,12 @@ def big_read(filename, chunk_size=16384, flag="rb"):
 
     return data
 
-def big_write(data, filename, flag="wb"):
+def big_write(data, filename, flag="ab"):
     print(f"Writing to {filename}...")
-    with open(filename, flag) as f:
-        for elem in data:
-            f.write(elem)
+    for elem in data:
+        f = open(filename, flag)
+        f.write(elem)
+        f.close()
 
 
 def write_file(data, filename, flag="w"):
@@ -64,6 +65,7 @@ def recurse_pair(data, rounds=1, total_rounds=5):
     if rounds > total_rounds:
         return data
 
+    print(f"Splicing list: Round: {rounds}/{total_rounds}")
     new_data = []
     for elem in data:
         if len(elem) < 2:
@@ -103,4 +105,16 @@ def huffman_encode(data, freqs=False):
     return encoded_output, encoded_codec
 
 def huffman_decode(data, codec):
-    return codec.decode(data)
+    print("Rebuilding Huffman codec from supplied string...")
+    decoded_codec = base64.a85decode(codec)
+    decompressed_codec = pickle.loads(zlib.decompress(decoded_codec))
+    print("Codec rebuilt!")
+
+    print("Decoding input...")
+    decoded_output = base64.a85decode(data)
+    decompressed_output = zlib.decompress(decoded_output)
+    out = decompressed_codec.decode(decompressed_output)
+    print("Decoded!")
+
+    return out
+
