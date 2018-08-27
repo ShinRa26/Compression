@@ -117,4 +117,3 @@ def huffman_decode(data, codec):
     print("Decoded!")
 
     return out
-
