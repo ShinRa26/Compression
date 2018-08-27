@@ -22,6 +22,7 @@ def big_read(filename, chunk_size=16384, flag="rb"):
     f = open(filename, flag)
     data = list(read_in_chunks(f, chunk_size=chunk_size))
     f.close()
+    print(f"Finished reading {filename}!")
 
     return data
 
