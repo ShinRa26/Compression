@@ -33,14 +33,17 @@ def replace_mappings(mapping, data_string):
 if __name__ == "__main__":
     with open(FILE, "rb") as f_d:
         for data in utils.read_in_chunks(f_d):
-            data = list("".join(x for x in binarise(data)))
-            data = [list(g) for k,g in groupby(data)]
-            data = compress(data)
-            data = "".join(x for x in data)
-            data = data.encode("utf-8").hex()
-            tmp = list(utils.splice_list(data, 4))
-            counts = dict(utils.Counter(tmp))
-            mappings = generate_mappings(counts)
-            data = replace_mappings(mappings, data)
-            print(data)
+
             break
+
+
+            # data = list("".join(x for x in binarise(data)))
+            # data = [list(g) for k,g in groupby(data)]
+            # data = compress(data)
+            # data = "".join(x for x in data)
+            # data = data.encode("utf-8").hex()
+            # tmp = list(utils.splice_list(data, 4))
+            # counts = dict(utils.Counter(tmp))
+            # mappings = generate_mappings(counts)
+            # data = replace_mappings(mappings, data)
+            # print(data)
