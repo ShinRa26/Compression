@@ -3,8 +3,10 @@ import math
 import zlib
 import pickle
 import base64
+import random
 from collections import Counter
-from dahuffman import HuffmanCodec
+
+MAX = 255
 
 def read_file(filename, flag="rb"):
     with open(filename, flag) as f:
@@ -15,7 +17,7 @@ def read_in_chunks(f_obj, chunk_size=16384):
         data = f_obj.read(chunk_size)
         if not data:
             break
-        yield data
+        yield list(data)
 
 def big_read(filename, chunk_size=16384, flag="rb"):
     print(f"Reading {filename}...")
@@ -84,37 +86,33 @@ def infinity_check(data):
             return True
     return False
 
-def huffman_codec(input_data, freqs=False):
-    if freqs:
-        return HuffmanCodec.from_frequencies(Counter(input_data))
-    return HuffmanCodec.from_data(input_data)
-
-def huffman_encode(data, freqs=False):
-    print(f"Building Huffman Codec...")
-    codec = huffman_codec(data, freqs=freqs)
-    print(f"Codec built!")
-    print("Encoding data...")
-    out = codec.encode(data)
-
-    print("Compressing output and codec with zlib...")
-    compressed_output = zlib.compress(out, 9)
-    compressed_codec = zlib.compress(pickle.dumps(codec), 9)
-
-    encoded_output = base64.a85encode(compressed_output)
-    encoded_codec = base64.a85encode(compressed_codec) 
-
-    return encoded_output, encoded_codec
-
-def huffman_decode(data, codec):
-    print("Rebuilding Huffman codec from supplied string...")
-    decoded_codec = base64.a85decode(codec)
-    decompressed_codec = pickle.loads(zlib.decompress(decoded_codec))
-    print("Codec rebuilt!")
-
-    print("Decoding input...")
-    decoded_output = base64.a85decode(data)
-    decompressed_output = zlib.decompress(decoded_output)
-    out = decompressed_codec.decode(decompressed_output)
-    print("Decoded!")
+def rot(data, n=13):
+    out = []
+    for dp in data:
+        dp += n
+        if dp > MAX:
+            dp -= MAX
+            out.append(dp)
+        else:
+            out.append(dp)
 
     return out
+
+def reverse_rot(data, n=13):
+    out = []
+    for dp in data:
+        dp -= n
+        if dp < 0:
+            dp = MAX + abs(dp)
+            dp -= MAX
+            out.append(dp)
+        else:
+            out.append(dp)
+
+    return out
+
+def zlib_compress(data, level=9):
+    return zlib.compress(data, level)
+
+def zlib_decompress(data):
+    return zlib.decompress(data)
