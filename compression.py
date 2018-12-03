@@ -33,7 +33,7 @@ def replace_mappings(mapping, data_string):
 if __name__ == "__main__":
     with open(FILE, "rb") as f_d:
         for data in utils.read_in_chunks(f_d):
-
+            print(utils.Counter(data))
             break
 
 
