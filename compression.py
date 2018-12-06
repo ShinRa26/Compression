@@ -1,50 +1,52 @@
 import utilities as utils
 from itertools import groupby
-import random
+import math
 
 FILE = "reaper.m4a"
 # FILE = "DBD169_3C1_1.mzML"
 
-# ASCII Range 33-126
+def encode(filename):
+    pass
 
-def binarise(data):
-    for pos, elem in enumerate(data):
-        data[pos] = format(elem, "08b")
-    return data
+def decode(encoded_file):
+    pass
 
-def compress(data):
-    for pos, elem in enumerate(data):
-        data[pos] = str(len(elem)) + "*" + elem[0] + " "
-    return data
 
-def generate_mappings(counts):
-    mappings = {}
-    start = 33
-    for key in counts.keys():
-        mappings[key] = chr(start)
-        start += 1
-    return mappings
+def output(data, filesize):
+    file_info = FILE.split(".")
+    out = {
+        "file_size": filesize,
+        "file_ext": file_info[-1],
+        "file_name": file_info[0],
+        "data_string": "|".join(utils.str_to_hex(str(x)) for x in final),
+    }
 
-def replace_mappings(mapping, data_string):
-    for key, value in mapping.items():
-        data_string = data_string.replace(key, value)
-    return data_string
+    with open("out.json", "w") as f:
+        utils.json.dump(out, f, indent=4)
+
 
 if __name__ == "__main__":
+    final = []
+    file_length = 0
+
     with open(FILE, "rb") as f_d:
+        print("Encoding...")
         for data in utils.read_in_chunks(f_d):
-            data = "".join(x for x in [hex(i) for i in data])
-            print(data)
+            file_length += len(data)
+            data = utils.encode_data(data)
+            final.append(data[0])
             break
 
+    print("Decoding...")
+    decoded = []
+    for elem in final:
+        target = utils.CHUNK_SIZE
+        file_length -= target
+        if file_length < 0:
+            decoded.append(utils.decode_data(elem, target-abs(file_length)))
+        else:
+            decoded.append(utils.decode_data([elem], target))
+        break
 
-            # data = list("".join(x for x in binarise(data)))
-            # data = [list(g) for k,g in groupby(data)]
-            # data = compress(data)
-            # data = "".join(x for x in data)
-            # data = data.encode("utf-8").hex()
-            # tmp = list(utils.splice_list(data, 4))
-            # counts = dict(utils.Counter(tmp))
-            # mappings = generate_mappings(counts)
-            # data = replace_mappings(mappings, data)
-            # print(data)
+
+    # output(final, file_length)

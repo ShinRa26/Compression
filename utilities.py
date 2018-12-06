@@ -6,20 +6,21 @@ import base64
 import random
 from collections import Counter
 
-MAX = 255
+CHUNK_SIZE = 4096
+ARBITRARY = 255
 
 def read_file(filename, flag="rb"):
     with open(filename, flag) as f:
         return [byte for byte in f.read()]
 
-def read_in_chunks(f_obj, chunk_size=16384):
+def read_in_chunks(f_obj, chunk_size=CHUNK_SIZE):
     while True:
         data = f_obj.read(chunk_size)
         if not data:
             break
         yield list(data)
 
-def big_read(filename, chunk_size=16384, flag="rb"):
+def big_read(filename, chunk_size=CHUNK_SIZE, flag="rb"):
     print(f"Reading {filename}...")
     f = open(filename, flag)
     data = list(read_in_chunks(f, chunk_size=chunk_size))
@@ -64,52 +65,65 @@ def cantor_unpair(num):
 
     return x, y
 
-def recurse_pair(data, rounds=1, total_rounds=5):
-    if rounds > total_rounds:
-        return data
-
-    print(f"Splicing list: Round: {rounds}/{total_rounds}")
-    new_data = []
-    for elem in data:
-        if len(elem) < 2:
-            new_data.append(elem[0])
-        else:
-            new_data.append(cantor_pair(*elem))
-
-    rounds += 1
-    new_data = list(splice_list(new_data, 2))
-    return recurse_pair(new_data, rounds=rounds, total_rounds=total_rounds)
-
 def infinity_check(data):
     for elem in data:
         if elem == float("Inf"):
             return True
     return False
 
-def rot(data, n=13):
-    out = []
-    for dp in data:
-        dp += n
-        if dp > MAX:
-            dp -= MAX
-            out.append(dp)
+def encode_data(data):
+    if len(data) < 2:
+        return data
+    data = list(splice_list(data, 2))
+    new_data = []
+    for elem in data:
+        if len(elem) < 2:
+            elem.append(0)
+        if elem[0] == 0 and elem[1] == 0:
+            new_data.append(0)
+            continue
+        c = cantor_pair(elem[0], elem[1])
+        if c < 0:
+            new_data.append(c/CHUNK_SIZE)
         else:
-            out.append(dp)
+            new_data.append(math.log10(c)/CHUNK_SIZE)
+    return encode_data(new_data)
 
+
+def decode_data(data, target_length):
+    if len(data) == target_length:
+        return data
+
+    new_data = []
+    data = list(splice_list(data, 2))
+
+    for elem in data:
+        for subelem in elem:
+            if subelem == 0 or subelem == 1:
+                new_data.append(subelem)
+                continue
+            cantor = subelem * CHUNK_SIZE
+            if cantor > 255 or cantor < -1:
+                new_data.append(subelem)
+                continue
+            if cantor < 0:
+                x, y = cantor_unpair(cantor)
+            else:
+                cantor = 10**cantor
+                x, y = cantor_unpair(cantor)
+            new_data.append(x)
+            new_data.append(y)
+    
+    return decode_data(new_data, target_length)
+
+
+def str_to_hex(string):
+    out = ""
+    for char in string:
+        out += hex(ord(char)).lstrip("0x")
+    
     return out
 
-def reverse_rot(data, n=13):
-    out = []
-    for dp in data:
-        dp -= n
-        if dp < 0:
-            dp = MAX + abs(dp)
-            dp -= MAX
-            out.append(dp)
-        else:
-            out.append(dp)
-
-    return out
 
 def zlib_compress(data, level=9):
     return zlib.compress(data, level)
