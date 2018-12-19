@@ -5,8 +5,9 @@ import pickle
 import base64
 import random
 from collections import Counter
+import numpy as np
 
-CHUNK_SIZE = 4096
+CHUNK_SIZE = 1024*4
 ARBITRARY = 255
 
 def read_file(filename, flag="rb"):
@@ -130,3 +131,31 @@ def zlib_compress(data, level=9):
 
 def zlib_decompress(data):
     return zlib.decompress(data)
+
+def prime_sieve(number):
+    prime = [True for _ in range(number + 1)]
+    p = 2
+
+    while (p * p <= number):
+        if prime[p]:
+            for i in range(p * 2, number + 1, p):
+                prime[i] = False
+        p += 1
+
+    return [p for p in range(2, number) if prime[p]]
+
+
+def elegant_pair(x, y):
+    return np.select(
+        [x != np.amax([x, y]), x == np.amax([x, y])],
+        [y**2 + x, x ** 2 + x + y]
+    )
+
+
+def elegant_unpair(z):
+   return np.select(
+            [z - np.floor(np.sqrt(z))**2 < np.floor(np.sqrt(z)),
+            z - np.floor(np.sqrt(z))**2 >= np.floor(np.sqrt(z))],
+            [[z - np.floor(np.sqrt(z))**2, np.floor(np.sqrt(z))],
+            [np.floor(np.sqrt(z)), z - np.floor(np.sqrt(z))**2 - np.floor(np.sqrt(z))]]
+        ) 

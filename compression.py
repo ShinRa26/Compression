@@ -1,52 +1,28 @@
 import utilities as utils
-from itertools import groupby
-import math
 
-FILE = "reaper.m4a"
-# FILE = "DBD169_3C1_1.mzML"
+FILE = "noise.b"
 
-def encode(filename):
+
+def convert_to_bit_string(data):
+    out = [bin(x).lstrip("0b").zfill(8) for x in data]
+    return out
+
+def compress(data):
     pass
 
-def decode(encoded_file):
-    pass
+def pair_loop(data):
+    while len(data) >= 2:
+        data = list(utils.splice_list(data, 2))
+        data = [int(utils.elegant_pair(*elem)) for elem in data]
 
+    return data
 
-def output(data, filesize):
-    file_info = FILE.split(".")
-    out = {
-        "file_size": filesize,
-        "file_ext": file_info[-1],
-        "file_name": file_info[0],
-        "data_string": "|".join(utils.str_to_hex(str(x)) for x in final),
-    }
-
-    with open("out.json", "w") as f:
-        utils.json.dump(out, f, indent=4)
-
-
-if __name__ == "__main__":
-    final = []
-    file_length = 0
-
+def run():
     with open(FILE, "rb") as f_d:
         print("Encoding...")
         for data in utils.read_in_chunks(f_d):
-            file_length += len(data)
-            data = utils.encode_data(data)
-            final.append(data[0])
-            break
+            data = pair_loop(data)
+            # TODO::Add each summation to new list, log, and repeat
 
-    print("Decoding...")
-    decoded = []
-    for elem in final:
-        target = utils.CHUNK_SIZE
-        file_length -= target
-        if file_length < 0:
-            decoded.append(utils.decode_data(elem, target-abs(file_length)))
-        else:
-            decoded.append(utils.decode_data([elem], target))
-        break
-
-
-    # output(final, file_length)
+if __name__ == "__main__":
+    run()
