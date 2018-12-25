@@ -5,3 +5,4 @@ __pycache__/
 .vscode/
 *.m4a
 *.raw
+*.b
